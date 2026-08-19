@@ -1,0 +1,26 @@
+{
+  "name": "ar-piano",
+  "version": "1.0.0",
+  "description": "Web-based AR Piano prototype with dual-hand tracking & keystroke kinematics",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "tunnel": "npx --yes untun tunnel --port 3443 --https",
+    "tunnel:cloudflare": "npx --yes cloudflared tunnel --url http://localhost:3000",
+    "tunnel:localtunnel": "npx --yes localtunnel --port 3000"
+  },
+  "keywords": [
+    "mediapipe",
+    "hand-tracking",
+    "ar-piano",
+    "webrtc"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "qrcode-terminal": "^0.12.0",
+    "selfsigned": "^5.5.0",
+    "untun": "^0.2.2"
+  }
+}

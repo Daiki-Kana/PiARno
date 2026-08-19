@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AR-Piano (37鍵盤)</title>
+  <meta name="description" content="実寸大37鍵ペーパー鍵盤対応 MediaPipe両手打鍵検出 ARピアノ">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <!-- Fullscreen Camera & AR Canvas Stage -->
+  <div class="fullscreen-stage">
+    <video id="webcam-video" autoplay playsinline webkit-playsinline muted></video>
+    <canvas id="output-canvas"></canvas>
+  </div>
+
+  <!-- Top Controls Bar (Calibration & Camera Toggle) -->
+  <div class="top-controls-bar">
+    <button id="btn-switch-camera" class="btn-camera-toggle" title="カメラ切り替え (超広角/広角)">
+      📷 カメラ切替
+    </button>
+    <button id="btn-calibrate-touch" class="btn-calib-floating" title="5秒タイマーで机上の接触面をキャリブレーション">
+      🖐️ キャリブレーション (5s)
+    </button>
+  </div>
+
+  <!-- 5-Second Calibration Countdown Overlay -->
+  <div id="countdown-overlay" class="countdown-overlay">
+    <div class="countdown-circle">
+      <span id="countdown-number" class="countdown-number">5</span>
+    </div>
+    <div class="countdown-guide-title">机上の鍵盤に両手をセットしてください</div>
+    <div class="countdown-guide-desc">タイマー終了時に指先の高さを自動測定し、打鍵接触面として登録します</div>
+    <button id="btn-cancel-countdown" class="btn-cancel-countdown">✕ キャンセル</button>
+  </div>
+
+  <!-- Calibration Toast Feedback -->
+  <div id="calib-toast" class="calib-toast hidden"></div>
+
+  <!-- Start Overlay for Browser Camera/Audio Permission -->
+  <div id="start-overlay" class="start-overlay">
+    <div class="start-card">
+      <div class="start-icon">🎹</div>
+      <div class="start-title">AR-Piano</div>
+      <div class="start-subtitle">37-Key Paper Keyboard Visualizer</div>
+      <div id="loading-container" class="loading-container">
+        <div class="loading-status-line">
+          <span id="loading-step-text">MediaPipe 読み込み中...</span>
+          <span id="loading-percent-text">0%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div id="progress-bar-fill" class="progress-bar-fill" style="width: 10%;"></div>
+        </div>
+      </div>
+      <button id="btn-start-app" class="btn-start-primary" disabled>
+        Loading Model...
+      </button>
+      <button id="btn-retry-init" class="btn-retry-secondary hidden">
+        🔄 再試行
+      </button>
+      <div id="start-error-box" class="start-error-box hidden">
+        <span id="start-error-text">エラーが発生しました</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Main Script -->
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
