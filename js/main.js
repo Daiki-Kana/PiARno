@@ -16,17 +16,6 @@ class ARPianoApp {
     // DOM Elements
     this.video = document.getElementById('webcam-video');
     this.canvas = document.getElementById('output-canvas');
-    this.startOverlay = document.getElementById('start-overlay');
-    this.btnStartApp = document.getElementById('btn-start-app');
-    this.btnRetryInit = document.getElementById('btn-retry-init');
-    this.startErrorBox = document.getElementById('start-error-box');
-    this.startErrorText = document.getElementById('start-error-text');
-
-    // Loading Progress
-    this.loadingContainer = document.getElementById('loading-container');
-    this.loadingStepText = document.getElementById('loading-step-text');
-    this.loadingPercentText = document.getElementById('loading-percent-text');
-    this.progressBarFill = document.getElementById('progress-bar-fill');
 
     // Controls & Countdown UI
     this.btnCalibrateTouch = document.getElementById('btn-calibrate-touch');
@@ -74,98 +63,70 @@ class ARPianoApp {
 
     // App State
     this.isRunning = false;
+    this.isModelReady = false;
     this.isProcessingFrame = false;
     this.lastRawHands = [];
     this.activeDragCorner = null;
-  }
-
-  setProgress(percent, stepText) {
-    if (this.loadingStepText) this.loadingStepText.textContent = stepText;
-    if (this.loadingPercentText) this.loadingPercentText.textContent = `${percent}%`;
-    if (this.progressBarFill) this.progressBarFill.style.width = `${percent}%`;
+    this.audioUnlocked = false;
   }
 
   async init() {
     this.setupEventListeners();
     this.setupQuadDragging();
+    this.setupAudioUnlock();
 
-    this.setProgress(20, 'MediaPipe Wasm 準備中...');
-    await this.loadModel();
+    // Bind Note On / Strike Sound
+    this.analyzer.onNoteOn((event) => {
+      this.synth.playKey(event.keyData, event.velocity);
+    });
+
+    // Start Camera immediately & Load MediaPipe Model in parallel
+    const cameraPromise = this.startCamera();
+    const modelPromise = this.loadModel();
+
+    await Promise.allSettled([cameraPromise, modelPromise]);
   }
 
-  async loadModel() {
-    if (this.startErrorBox) this.startErrorBox.classList.add('hidden');
-    if (this.btnRetryInit) this.btnRetryInit.classList.add('hidden');
-
-    try {
-      this.setProgress(40, 'Wasm パッケージ展開中...');
-      await this.tracker.initialize((msg) => {
-        if (msg.includes('GPU')) {
-          this.setProgress(75, 'GPU HandLandmarker 初期化中...');
-        } else if (msg.includes('CPU')) {
-          this.setProgress(80, 'CPU HandLandmarker 初期化中...');
-        } else if (msg.includes('Ready')) {
-          this.setProgress(100, 'AIモデル準備完了');
-        } else {
-          this.setProgress(60, msg);
-        }
-      });
-
-      this.setProgress(100, '準備完了');
-      if (this.btnStartApp) {
-        this.btnStartApp.disabled = false;
-        this.btnStartApp.textContent = '37鍵 AR-Piano を開始';
+  setupAudioUnlock() {
+    const unlock = () => {
+      if (!this.audioUnlocked) {
+        this.synth.init();
+        this.audioUnlocked = true;
       }
-    } catch (err) {
-      console.error('Initialization error', err);
-      if (this.startErrorBox && this.startErrorText) {
-        this.startErrorText.textContent = `モデル初期化エラー: ${err.message || err}`;
-        this.startErrorBox.classList.remove('hidden');
-      }
-      if (this.btnRetryInit) this.btnRetryInit.classList.remove('hidden');
-    }
+    };
+    window.addEventListener('pointerdown', unlock, { once: true });
+    window.addEventListener('touchstart', unlock, { once: true });
+    window.addEventListener('click', unlock, { once: true });
+    window.addEventListener('keydown', unlock, { once: true });
   }
 
-  async startCameraAndTracking() {
-    try {
-      this.synth.init();
-    } catch (audioErr) {
-      console.warn('Audio unlock warning:', audioErr);
-    }
-
-    if (this.startErrorBox) this.startErrorBox.classList.add('hidden');
-
+  async startCamera() {
     try {
       await this.camera.start();
-
-      if (this.startOverlay) {
-        this.startOverlay.classList.add('hidden');
-      }
-
       this.syncCanvasSize();
 
-      // Bind Note On / Strike Sound (Supports both White and Black keys)
-      this.analyzer.onNoteOn((event) => {
-        this.synth.playKey(event.keyData, event.velocity);
-      });
+      if (!this.isRunning) {
+        this.isRunning = true;
+        this.startPipelineLoop();
+      }
 
-      this.isRunning = true;
-      this.startPipelineLoop();
-
-      // Initial Camera Status Toast
       const camLabel = this.camera.getCurrentCameraLabel();
       this.showToast(`カメラ起動: ${camLabel}`);
     } catch (err) {
       console.error('Camera startup failed', err);
-      if (this.startErrorBox && this.startErrorText) {
-        this.startErrorText.textContent = `${err.message || err}`;
-        this.startErrorBox.classList.remove('hidden');
-      }
-      if (this.startOverlay) this.startOverlay.classList.remove('hidden');
-      if (this.btnStartApp) {
-        this.btnStartApp.textContent = 'カメラ接続を再試行';
-        this.btnStartApp.disabled = false;
-      }
+      this.showToast(`カメラ起動エラー: ${err.message || err}`);
+    }
+  }
+
+  async loadModel() {
+    try {
+      await this.tracker.initialize((msg) => {
+        // Optional status updates
+      });
+      this.isModelReady = true;
+    } catch (err) {
+      console.error('Model initialization error', err);
+      this.showToast(`モデル読込エラー: ${err.message || err}`);
     }
   }
 

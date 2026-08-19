@@ -42,33 +42,6 @@
   <!-- Calibration Toast Feedback -->
   <div id="calib-toast" class="calib-toast hidden"></div>
 
-  <!-- Start Overlay for Browser Camera/Audio Permission -->
-  <div id="start-overlay" class="start-overlay">
-    <div class="start-card">
-      <div class="start-brand-badge">PIARNO</div>
-      <div class="start-title">AR-Piano</div>
-      <div class="start-subtitle">37-Key Paper Keyboard Visualizer</div>
-      <div id="loading-container" class="loading-container">
-        <div class="loading-status-line">
-          <span id="loading-step-text">MediaPipe 読み込み中...</span>
-          <span id="loading-percent-text">0%</span>
-        </div>
-        <div class="progress-bar-track">
-          <div id="progress-bar-fill" class="progress-bar-fill" style="width: 10%;"></div>
-        </div>
-      </div>
-      <button id="btn-start-app" class="btn-start-primary" disabled>
-        Loading Model...
-      </button>
-      <button id="btn-retry-init" class="btn-retry-secondary hidden">
-        再試行
-      </button>
-      <div id="start-error-box" class="start-error-box hidden">
-        <span id="start-error-text">エラーが発生しました</span>
-      </div>
-    </div>
-  </div>
-
   <!-- Application Main Script -->
   <script type="module" src="./js/main.js"></script>
 </body>
