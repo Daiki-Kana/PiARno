@@ -233,7 +233,7 @@ class ARPianoApp {
         if (this.btnCalibrateTouch) {
           this.btnCalibrateTouch.disabled = false;
           this.btnCalibrateTouch.style.opacity = '1';
-          this.btnCalibrateTouch.textContent = '🖐️ キャリブレーション (5s)';
+          this.btnCalibrateTouch.textContent = 'キャリブレーション (5s)';
         }
 
         try { this.synth.playCountdownTick(true); } catch (e) {}
@@ -253,7 +253,7 @@ class ARPianoApp {
     if (this.btnCalibrateTouch) {
       this.btnCalibrateTouch.disabled = false;
       this.btnCalibrateTouch.style.opacity = '1';
-      this.btnCalibrateTouch.textContent = '🖐️ キャリブレーション (5s)';
+      this.btnCalibrateTouch.textContent = 'キャリブレーション (5s)';
     }
     this.showToast('キャリブレーションをキャンセルしました');
   }

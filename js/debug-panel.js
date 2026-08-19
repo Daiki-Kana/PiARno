@@ -179,7 +179,7 @@ export class DebugPanel {
     this.toggleBtn = document.createElement('button');
     this.toggleBtn.id = 'btn-debug-toggle';
     this.toggleBtn.className = 'btn-debug-toggle';
-    this.toggleBtn.textContent = '⚙';
+    this.toggleBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>';
     this.toggleBtn.title = '設定 / デバッグパネル';
     this.toggleBtn.addEventListener('click', () => this.toggle());
     this.toggleBtn.addEventListener('touchend', (e) => {
@@ -197,7 +197,7 @@ export class DebugPanel {
 
     // Header
     html += `<div class="debug-panel-header">
-      <span class="debug-panel-title">⚙ 設定 / パラメータ</span>
+      <span class="debug-panel-title">設定 / パラメータ</span>
       <div class="debug-panel-header-btns">
         <button id="debug-reset-btn" class="debug-reset-btn" title="デフォルトに戻す">初期化</button>
         <button id="debug-close-btn" class="debug-close-btn" title="閉じる">✕</button>
