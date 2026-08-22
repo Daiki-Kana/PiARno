@@ -30,6 +30,8 @@ const DEFAULT_PARAMS = {
   cooldownLiftAmount: 0.03,
   hysteresisMargin: 0.025,
   cooldownTimeMs: 80,
+  // Performance
+  useRoiCrop: true,
 };
 
 const PARAM_CONFIGS = [
@@ -163,6 +165,10 @@ export class DebugPanel {
     if (skelToggle) {
       skelToggle.checked = this.params.showSkeleton;
     }
+    const roiToggle = this.container.querySelector('#debug-roi-enabled');
+    if (roiToggle) {
+      roiToggle.checked = this.params.useRoiCrop;
+    }
     const flexToggle = this.container.querySelector('#debug-flexion-enabled');
     if (flexToggle) {
       flexToggle.checked = this.params.flexionEnabled;
@@ -204,22 +210,30 @@ export class DebugPanel {
       </div>
     </div>`;
 
-    // FPS + Detection Monitor
+    // FPS + Delegate + Detection Monitor
     html += `<div class="debug-monitor-row">
       <span id="debug-fps" class="debug-fps">FPS: --</span>
+      <span id="debug-delegate" class="debug-delegate">Backend: --</span>
       <span id="debug-hands" class="debug-hands">Hands: 0</span>
     </div>`;
 
     // Finger state monitor
     html += `<div id="debug-finger-monitor" class="debug-finger-monitor"></div>`;
 
-    // Skeleton Overlay Toggle Group
+    // Display & Performance Toggles Group
     html += `<div class="debug-group">
-      <div class="debug-group-label">表示設定</div>
+      <div class="debug-group-label">表示・パフォーマンス設定</div>
       <div class="debug-toggle-row">
         <label class="debug-toggle-label">手の骨格オーバーレイ表示</label>
         <label class="debug-switch">
           <input type="checkbox" id="debug-skeleton-enabled" ${this.params.showSkeleton ? 'checked' : ''}>
+          <span class="debug-switch-slider"></span>
+        </label>
+      </div>
+      <div class="debug-toggle-row">
+        <label class="debug-toggle-label">鍵盤ROIクロップ推論 (高速化)</label>
+        <label class="debug-switch">
+          <input type="checkbox" id="debug-roi-enabled" ${this.params.useRoiCrop ? 'checked' : ''}>
           <span class="debug-switch-slider"></span>
         </label>
       </div>
@@ -291,6 +305,14 @@ export class DebugPanel {
       });
     }
 
+    // ROI Crop toggle
+    const roiToggle = this.container.querySelector('#debug-roi-enabled');
+    if (roiToggle) {
+      roiToggle.addEventListener('change', (e) => {
+        this.set('useRoiCrop', e.target.checked);
+      });
+    }
+
     // Flexion toggle
     const flexionToggle = this.container.querySelector('#debug-flexion-enabled');
     if (flexionToggle) {
@@ -315,6 +337,7 @@ export class DebugPanel {
 
     // Cache elements
     this.fpsDisplay = this.container.querySelector('#debug-fps');
+    this.delegateDisplay = this.container.querySelector('#debug-delegate');
     this.handsDisplay = this.container.querySelector('#debug-hands');
     this.fingerMonitor = this.container.querySelector('#debug-finger-monitor');
   }
@@ -363,11 +386,18 @@ export class DebugPanel {
     }
   }
 
-  updateFingerStates(fingerStates, handCount = 0) {
+  updateFingerStates(fingerStates, handCount = 0, delegateMode = '') {
     if (!this.isVisible) return;
 
     if (this.handsDisplay) {
       this.handsDisplay.textContent = `Hands: ${handCount}`;
+    }
+
+    if (this.delegateDisplay && delegateMode) {
+      const isGpu = delegateMode === 'GPU';
+      this.delegateDisplay.textContent = `${delegateMode}`;
+      this.delegateDisplay.style.color = isGpu ? '#ffffff' : '#aaaaaa';
+      this.delegateDisplay.title = isGpu ? 'GPU Delegate (WebGL 加速有効)' : 'CPU Delegate (Wasm 動作中)';
     }
 
     if (!this.fingerMonitor || !fingerStates) return;

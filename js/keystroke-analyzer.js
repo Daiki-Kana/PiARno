@@ -55,6 +55,7 @@ export class KeystrokeAnalyzer {
       cooldownTimeMs: 80,
       filterMinCutoff: 1.0,
       filterBeta: 0.007,
+      useRoiCrop: true,
     };
 
     // 4. Ring buffer of recent fingertip Y positions for calibration
@@ -212,6 +213,27 @@ export class KeystrokeAnalyzer {
   }
 
   // ─── Spatial hit testing ──────────────────────────────────────
+
+  /**
+   * Compute keyboard bounding box ROI in normalized [0..1] space with configurable margin
+   * @param {number} [margin=0.10]
+   * @returns {{ minX: number, minY: number, maxX: number, maxY: number, width: number, height: number }}
+   */
+  getKeyboardRoi(margin = 0.10) {
+    const q = this.keyboardQuad;
+    const minX = Math.max(0, Math.min(q.topLeft.x, q.bottomLeft.x) - margin);
+    const maxX = Math.min(1, Math.max(q.topRight.x, q.bottomRight.x) + margin);
+    const minY = Math.max(0, Math.min(q.topLeft.y, q.topRight.y) - margin * 1.5); // extra headroom for descending fingers
+    const maxY = Math.min(1, Math.max(q.bottomLeft.y, q.bottomRight.y) + margin);
+    return {
+      minX,
+      minY,
+      maxX,
+      maxY,
+      width: maxX - minX,
+      height: maxY - minY
+    };
+  }
 
   isPointInQuad(px, py) {
     const quad = [

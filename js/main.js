@@ -397,8 +397,9 @@ class ARPianoApp {
     // Update FPS in debug panel
     this.debugPanel.updateFPS();
 
-    // 1. Hand Detection
-    const rawHands = this.tracker.detectForVideo(this.video, timestamp);
+    // 1. Hand Detection (Optionally with keyboard ROI crop to lower inference load)
+    const roi = this.analyzer.params.useRoiCrop ? this.analyzer.getKeyboardRoi(0.12) : null;
+    const rawHands = this.tracker.detectForVideo(this.video, timestamp, roi);
     this.lastRawHands = rawHands || [];
 
     // 2. Kinematics & Keystroke Analysis (with integrated 1€ Filter + State Machine)
@@ -416,10 +417,11 @@ class ARPianoApp {
       isMirrored: this.camera.isMirrored
     });
 
-    // 4. Update debug panel finger states
+    // 4. Update debug panel finger states & delegate mode
     this.debugPanel.updateFingerStates(
       this.analyzer.fingerStates,
-      this.lastRawHands.length
+      this.lastRawHands.length,
+      this.tracker.getDelegateMode()
     );
 
     this.isProcessingFrame = false;

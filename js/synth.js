@@ -64,12 +64,19 @@ export class PianoSynth {
   }
 
   /**
-   * Unlock & Initialize AudioContext on user interaction
+   * Unlock & Initialize AudioContext on user interaction with interactive latencyHint
    */
   init() {
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx();
+      try {
+        // Explicitly set latencyHint: 'interactive' to minimize output buffer size and reduce audio latency
+        this.ctx = new AudioCtx({ latencyHint: 'interactive' });
+        console.log('[PianoSynth] AudioContext created with latencyHint: "interactive"');
+      } catch (err) {
+        console.warn('[PianoSynth] AudioContext with options failed, falling back to default constructor:', err);
+        this.ctx = new AudioCtx();
+      }
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.value = 0.4;
       this.masterGain.connect(this.ctx.destination);
